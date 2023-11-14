@@ -138,8 +138,10 @@ Loading the test dataset:
 ```
 ## Output:
 
-![output1](output1.png)
-![output2](output2.png)
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/ea961da9-9e22-4066-9e6f-b08df895fd5f)
+
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/85983d88-2d2a-4a6e-9eac-39f62c98e4f4)
+
 
 ## Result:
 

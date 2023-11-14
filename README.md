@@ -6,31 +6,38 @@ Early detection plays a key role in improving the chances of successful treatmen
 
 ## Features
 
-Image Preprocessing:
+### Image Preprocessing:
+
 Normalization: Ensures consistent pixel values for improved model performance.
 Resizing: Standardizes image dimensions for compatibility with the detection model.
 Augmentation: Enhances the dataset by applying transformations like rotations or flips.
 
-Convolutional Neural Network (CNN):
+### Convolutional Neural Network (CNN):
+
 Utilizes convolutional layers to automatically learn hierarchical features from input images.
 Employs pooling layers for downsampling and reducing spatial dimensions.
 Utilizes fully connected layers for making predictions based on learned features.
 
-Transfer Learning:
+### Transfer Learning:
+
 Leverages pre-trained CNN models (e.g., ResNet, VGG) for feature extraction.
 Fine-tunes the model on a brain tumor detection-specific dataset.
 
-Data Splitting:
+### Data Splitting:
+
 Segregates the dataset into training, validation, and test sets for model development and evaluation.
 
-Loss Function and Optimization:
+### Loss Function and Optimization:
+
 Employs appropriate loss functions (e.g., binary cross-entropy) to measure model performance.
 Optimizes model parameters using optimization algorithms (e.g., SGD, Adam).
 
-Metrics for Evaluation:
+### Metrics for Evaluation:
+
 Utilizes metrics such as accuracy, precision, recall, F1-score, and ROC-AUC for model evaluation.
 
-Post-Processing Techniques:
+### Post-Processing Techniques:
+
 Applies post-processing methods to refine model predictions, such as thresholding or morphological operations.
 
 ## Requirements

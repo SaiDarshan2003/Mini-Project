@@ -72,82 +72,115 @@ Applies post-processing methods to refine model predictions, such as thresholdin
 
 Packages Used:
 ```
+import os
+import keras
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from PIL import Image
 import numpy as np
 import pandas as pd
-import os
-import opendatasets as od
-import pandas
-from google.colab import files
-import zipfile
-from torchvision.transforms import ToTensor, Compose,Resize
-from torchvision.datasets import ImageFolder
-import torch
-from torch.utils.data import DataLoader
-from torch import nn
-from torch.optim import Adam
+import matplotlib.pyplot as plt
+plt.style.use('dark_background')
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 ```
 Loading Datasets:
 ```
-data_paths='/content/drive/MyDrive/brain_tumor_dataset'
+data = []
+paths = []
+result = []
+
+for r, d, f in os.walk(r'/content/drive/MyDrive/brain_tumor_dataset/yes'):
+    for file in f:
+        if '.jpg' in file:
+            paths.append(os.path.join(r, file))
+
+for path in paths:
+    img = Image.open(path)
+    img = img.resize((128,128))
+    img = np.array(img)
+    if(img.shape == (128,128,3)):
+        data.append(np.array(img))
+        result.append(encoder.transform([[0]]).toarray())
+
+paths = []
+for r, d, f in os.walk(r"/content/drive/MyDrive/brain_tumor_dataset/no"):
+    for file in f:
+        if '.jpg' in file:
+            paths.append(os.path.join(r, file))
+
+for path in paths:
+    img = Image.open(path)
+    img = img.resize((128,128))
+    img = np.array(img)
+    if(img.shape == (128,128,3)):
+        data.append(np.array(img))
+        result.append(encoder.transform([[1]]).toarray())
 ```
 Resizing and transforming:
 ```
-transfm=Compose([ToTensor(),Resize((224,224))])
-dataset=ImageFolder(data_paths, transform=transfm)
+data = np.array(data)
+data.shape
+result = np.array(result)
+result = result.reshape(139,2)
 ```
 Splitting the dataset:
 ```
-train_set,valid_set=torch.utils.data.random_split(dataset,[200,53])
-train_loader=DataLoader(train_set, batch_size=4, shuffle=True)
-valid_loader=DataLoader(valid_set, batch_size=4)
+x_train,x_test,y_train,y_test = train_test_split(data, result, test_size=0.2, shuffle=True, random_state=0)
 ```
 Model:
 ```
-class Classifier(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.model=nn.Sequential(
-            nn.Conv2d(3,64,(3,3)),
-            nn.ReLU(),
-            nn.Conv2d(64,256,(3,3)),
-            nn.ReLU(),
-            nn.Conv2d(256,64,(3,3)),
-            nn.ReLU(),
-            nn.Flatten(),
-            nn.Linear(64*(224-6)*(224-6), 64),
-            nn.Linear(64,64),
-            nn.Linear(64,2)
-            )
-    def forward(self,x):
-        return self.model(x)
-```
-Optimizer and fitting the model:
-```
-clf=Classifier()
-opt=Adam(clf.parameters(),lr=1e-5)
-loss_fn=nn.CrossEntropyLoss()
-```
-Loading the test dataset:
-```
-    for X,y in train_loader:
-        X,y=X,y
-        yhat=clf(X)
-        loss=loss_fn(yhat,y)
+model = Sequential()
 
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
+model.add(Conv2D(32, kernel_size=(2, 2), input_shape=(128, 128, 3), padding = 'Same'))
+model.add(Conv2D(32, kernel_size=(2, 2),  activation ='relu', padding = 'Same'))
 
-        pred=torch.argmax(yhat,1)
-        correct+=(y==pred).sum().item()
-        items+=y.size(0)
-    print(f"Epoch {epoch} loss {loss} train_acc {correct*100/items}")
+
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+model.add(Conv2D(64, kernel_size = (2,2), activation ='relu', padding = 'Same'))
+model.add(Conv2D(64, kernel_size = (2,2), activation ='relu', padding = 'Same'))
+
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2)))
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+
+model.add(Dense(512, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(2, activation='softmax'))
+
+model.compile(loss = "categorical_crossentropy", optimizer='Adamax')
+print(model.summary())
+```
+Fitting the model:
+```
+history = model.fit(x_train, y_train, epochs = 28, batch_size = 40, verbose = 1,validation_data = (x_test, y_test))
+```
+Testing:
+```
+from matplotlib.pyplot import imshow
+img = Image.open(r"/content/yesvt.jpg")
+x = np.array(img.resize((128,128)))
+x = x.reshape(1,128,128,3)
+res = model.predict_on_batch(x)
+classification = np.where(res == np.amax(res))[1][0]
+imshow(img)
+print(str(res[0][classification]*100) + '% Confidence This Is A ' + names(classification))
 ```
 ## Output:
 
-![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/ea961da9-9e22-4066-9e6f-b08df895fd5f)
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/ccce29a5-237d-451d-a192-0e69d3951da2)
 
-![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/85983d88-2d2a-4a6e-9eac-39f62c98e4f4)
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/b5c1a6ab-57ae-4000-9808-a8e1e538cb5d)
+
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/f91069e0-27c9-4f03-858c-b4e7413d4ef5)
+
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/f5571b9f-c7cb-4992-be35-61e91d3b68ca)
+
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/a0da1d3d-a2cf-490e-9a8a-a4c013e9464a)
 
 
 ## Result:

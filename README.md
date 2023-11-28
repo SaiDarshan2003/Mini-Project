@@ -47,7 +47,7 @@ Applies post-processing methods to refine model predictions, such as thresholdin
 
 ## Architecture Diagram/Flow
 
-![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/fcaa1a7a-92dd-43da-ba9b-90559ef5c685)
+![image](https://github.com/SaiDarshan2003/Mini-Project/assets/94692595/95655b3b-4cc0-4b7b-919c-e89c27f2c0c6)
 
 
 ## Usage
